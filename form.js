@@ -18,7 +18,7 @@ class Form {
     this.#currentInputIndex = 0;
   }
 
-  getFormData() {
+  #getFormData() {
     return this.#formInputs.reduce((formData, formInput) => {
       formData[formInput.name] = formInput.value;
       return formData;
@@ -31,6 +31,16 @@ class Form {
 
   currentInput() {
     return this.#formInputs[this.#currentInputIndex];
+  }
+
+  hasFormCompleted() {
+    return this.#currentInputIndex >= this.#formInputs.length;
+  }
+
+  storeForm() {
+    const formData = this.#getFormData();
+    const content = JSON.stringify(formData);
+    writeInFile(content, 'form-data.json');
   }
 }
 
@@ -137,13 +147,11 @@ const fillForm = (form) => {
     if (currentInput) {
       prompt(currentInput.label);
     }
-  });
 
-  process.stdin.on('end', () => {
-    const formData = form.getFormData();
-    const content = JSON.stringify(formData);
-    writeInFile(content, 'form-data.json');
-    prompt('Thank you');
+    if (form.hasFormCompleted()) {
+      form.storeForm();
+      prompt('Thank you');
+    }
   });
 };
 
@@ -162,6 +170,7 @@ const main = () => {
       validateHobbies
     ),
   ]
+
   const form = new Form(formInputs);
   fillForm(form);
 };
