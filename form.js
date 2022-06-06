@@ -25,25 +25,28 @@ class Form {
 
   #getFormData() {
     return this.#formInputs.reduce((formData, formInput) => {
-      if (formData[formInput.name]) {
-        formData[formInput.name] += '\n' + formInput.value;
-        return formData;
-      }
-      formData[formInput.name] = formInput.value;
+      formData[formInput.name] = formInput.value();
       return formData;
     }, {});
   }
 
   nextInput() {
-    return this.#formInputs[++this.#currentInputIndex];
+    const flatInputs = this.#flatInputs();
+    return flatInputs[++this.#currentInputIndex];
   }
 
   currentInput() {
-    return this.#formInputs[this.#currentInputIndex];
+    const flatInputs = this.#flatInputs();
+    return flatInputs[this.#currentInputIndex];
+  }
+
+  #flatInputs() {
+    return this.#formInputs.flatMap(input =>
+      input.combined ? input.inputs : input);
   }
 
   hasFormCompleted() {
-    return this.#currentInputIndex >= this.#formInputs.length;
+    return this.#currentInputIndex >= this.#flatInputs().length;
   }
 
   storeForm() {
@@ -56,6 +59,7 @@ class Form {
 class FormInput {
   #parser;
   #validator;
+  #value;
   constructor(name, label, parser, validator) {
     this.name = name;
     this.label = label;
@@ -66,10 +70,14 @@ class FormInput {
   addValue(text) {
     const value = this.#parser(text);
     if (this.#isValid(value)) {
-      this.value = value;
+      this.#value = value;
       return true;
     }
     return false;
+  }
+
+  value() {
+    return this.#value;
   }
 
   #isValid(value) {
@@ -79,6 +87,18 @@ class FormInput {
     } catch (err) {
       return false;
     }
+  }
+}
+
+class CombinedFormInput {
+  constructor(name, formInputs) {
+    this.name = name;
+    this.inputs = formInputs;
+    this.combined = true;
+  }
+
+  value() {
+    return this.inputs.map(input => input.value()).join('\n');
   }
 }
 
@@ -118,6 +138,21 @@ const parseHobbies = (hobbies) => {
 const identity = (x) => x;
 
 const main = () => {
+  const combinedFormInputs = [
+    new FormInput(
+      'address',
+      'Please enter address line 1 :',
+      identity,
+      identity
+    ),
+    new FormInput(
+      'address',
+      'Please enter address line 2 :',
+      identity,
+      identity
+    ),
+  ];
+
   const formInputs = [
     new FormInput('name', 'Please enter your name :', identity, validateName),
     new FormInput(
@@ -135,19 +170,8 @@ const main = () => {
       identity,
       validatePhoneNumber
     ),
-    new FormInput(
-      'address',
-      'Please enter address line 1 :',
-      identity,
-      identity
-    ),
-    new FormInput(
-      'address',
-      'Please enter address line 2 :',
-      identity,
-      identity
-    ),
-  ]
+    new CombinedFormInput('address', combinedFormInputs)
+  ];
 
   const form = new Form(formInputs);
   fillForm(form);
