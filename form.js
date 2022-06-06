@@ -3,9 +3,11 @@ const fs = require('fs');
 class Form {
   #formData;
   #formInputs;
+  #currentInputIndex;
   constructor(formInputs) {
     this.#formInputs = formInputs;
     this.#formData = {};
+    this.#currentInputIndex = 0;
   }
 
   add(name, value) {
@@ -25,8 +27,12 @@ class Form {
     }
   }
 
-  getFormInputs() {
-    return this.#formInputs.map(({ name, label }) => ({ name, label }));
+  nextField() {
+    return this.#formInputs[++this.#currentInputIndex];
+  }
+
+  currentInput() {
+    return this.#formInputs[this.#currentInputIndex];
   }
 
   print() {
@@ -45,17 +51,14 @@ const prompt = (text) => {
 const fillForm = (form) => {
   process.stdin.setEncoding('utf8');
 
-  const formInputs = form.getFormInputs();
-  let currentInputIndex = 0;
-
-  prompt(formInputs[currentInputIndex].label);
+  let currentInput = form.currentInput();
+  prompt(currentInput.label);
 
   process.stdin.on('data', (chunk) => {
-    form.add(formInputs[currentInputIndex].name, chunk.trim());
-
-    currentInputIndex++;
-    if (currentInputIndex < formInputs.length) {
-      prompt(formInputs[currentInputIndex].label);
+    form.add(currentInput.name, chunk.trim());
+    currentInput = form.nextField();
+    if (currentInput) {
+      prompt(currentInput.label);
     }
   });
 
