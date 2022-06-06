@@ -1,9 +1,9 @@
 {
   "name": "nitin",
-  "dob": "2001-01-01",
+  "dob": "2001-02-02",
   "hobbies": [
-    "cycling",
-    "reading"
+    "cycling"
   ],
-  "ph_no": "9667037909"
+  "ph_no": "9667037909",
+  "address": "krishan vihar\ndelhi"
 }

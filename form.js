@@ -25,6 +25,10 @@ class Form {
 
   #getFormData() {
     return this.#formInputs.reduce((formData, formInput) => {
+      if (formData[formInput.name]) {
+        formData[formInput.name] += '\n' + formInput.value;
+        return formData;
+      }
       formData[formInput.name] = formInput.value;
       return formData;
     }, {});
@@ -130,6 +134,18 @@ const main = () => {
       'Please enter your phone number :',
       identity,
       validatePhoneNumber
+    ),
+    new FormInput(
+      'address',
+      'Please enter address line 1 :',
+      identity,
+      identity
+    ),
+    new FormInput(
+      'address',
+      'Please enter address line 2 :',
+      identity,
+      identity
     ),
   ]
 
