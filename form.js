@@ -1,44 +1,75 @@
 const fs = require('fs');
 
+const writeInFile = (content, filename) => {
+  try {
+    fs.writeFileSync(filename, content, 'utf8');
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
+
 class Form {
-  #formData;
   #formInputs;
   #currentInputIndex;
   constructor(formInputs) {
     this.#formInputs = formInputs;
-    this.#formData = {};
     this.#currentInputIndex = 0;
   }
 
-  add(name, value) {
-    const input = this.#formInputs.find(input => input.name === name);
-    if (input) {
-      this.#formData[name] = input.get(value);
-    }
+  getFormData() {
+    return this.#formInputs.reduce((formData, formInput) => {
+      formData[formInput.name] = formInput.value;
+      return formData;
+    }, {});
   }
 
-  storeInFile(filename) {
-    const content = JSON.stringify(this.#formData);
-    try {
-      fs.writeFileSync(filename, content, 'utf8');
-      return true;
-    } catch (err) {
-      return false;
-    }
-  }
-
-  nextField() {
+  nextInput() {
     return this.#formInputs[++this.#currentInputIndex];
   }
 
   currentInput() {
     return this.#formInputs[this.#currentInputIndex];
   }
+}
 
-  print() {
-    console.log(this.#formData);
+class FormInput {
+  #parser;
+  #validator;
+  constructor(name, label, parser, validator) {
+    this.name = name;
+    this.label = label;
+    this.#parser = parser;
+    this.#validator = validator;
+  }
+
+  addValue(text) {
+    this.value = this.#parser(text);
+  }
+
+  isValid(value) {
+    try {
+      this.#validator(value);
+      return true;
+    } catch (err) {
+      return false;
+    }
   }
 }
+
+const validateName = (name) => {
+  if (name.length < 5) {
+    throw new Error('Invalid name');
+  }
+};
+
+const validateDob = (dob) => {
+  return;
+};
+
+const validateHobbies = (hobbies) => {
+  return;
+};
 
 const parseHobbies = (hobbies) => {
   return hobbies.split(',');
@@ -55,37 +86,38 @@ const fillForm = (form) => {
   prompt(currentInput.label);
 
   process.stdin.on('data', (chunk) => {
-    form.add(currentInput.name, chunk.trim());
-    currentInput = form.nextField();
+    if (currentInput.isValid(chunk)) {
+      currentInput.addValue(chunk.trim());
+      currentInput = form.nextInput();
+    }
+
     if (currentInput) {
       prompt(currentInput.label);
     }
   });
 
   process.stdin.on('end', () => {
-    form.storeInFile('form-data.json');
+    const formData = form.getFormData();
+    const content = JSON.stringify(formData);
+    writeInFile(content, 'form-data.json');
     prompt('Thank you');
   });
 };
 
+const identity = (x) => x;
+
 const main = () => {
   const formInputs = [
-    {
-      name: 'name',
-      label: 'Please enter your name :',
-      get: (x) => x
-    },
-    {
-      name: 'dob',
-      label: 'Please enter you dob(yyyy-mm-dd) :',
-      get: (x) => x
-    },
-    {
-      name: 'hobbies',
-      label: 'Please enter your hobbies separated by commans :',
-      get: parseHobbies
-    }
-  ];
+    new FormInput('name', 'Please enter your name :', identity, validateName),
+    new FormInput(
+      'dob', 'Please enter you dob(yyyy-mm-dd) :', identity, validateDob
+    ),
+    new FormInput(
+      'hobbies',
+      'Please enter your hobbies separated by commans :',
+      parseHobbies, validateHobbies
+    ),
+  ]
   const form = new Form(formInputs);
   fillForm(form);
 };
