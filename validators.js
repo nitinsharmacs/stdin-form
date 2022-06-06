@@ -1,5 +1,7 @@
 const { daysInMonth } = require('./day');
 
+const isPhoneNumber = (text) => /^\d{10,10}$/.test(text);
+
 const parseDate = (date) => {
   const [year, month, day] = date.split('-');
   return {
@@ -49,7 +51,14 @@ const validateHobbies = (hobbies) => {
   }
 };
 
+const validatePhoneNumber = (phoneNumber) => {
+  if (isPhoneNumber(phoneNumber)) {
+    return;
+  }
+  throw new Error('Invalid phone number');
+};
+
 exports.validateName = validateName;
 exports.validateDob = validateDob;
 exports.validateHobbies = validateHobbies;
-// exports.validatePhone = validatePhone;
+exports.validatePhoneNumber = validatePhoneNumber;

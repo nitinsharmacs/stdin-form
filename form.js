@@ -3,6 +3,7 @@ const {
   validateName,
   validateDob,
   validateHobbies,
+  validatePhoneNumber
 } = require('./validators.js');
 
 const writeInFile = (content, filename) => {
@@ -102,6 +103,7 @@ const fillForm = (form) => {
     }
   });
 };
+
 const parseHobbies = (hobbies) => {
   if (hobbies.length === 0) {
     return [];
@@ -122,7 +124,13 @@ const main = () => {
       'Please enter your hobbies separated by commans :',
       parseHobbies,
       validateHobbies
-    )
+    ),
+    new FormInput(
+      'ph_no',
+      'Please enter your phone number :',
+      identity,
+      validatePhoneNumber
+    ),
   ]
 
   const form = new Form(formInputs);
