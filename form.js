@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { daysInMonth } = require('./day');
 
 const writeInFile = (content, filename) => {
   try {
@@ -44,10 +45,15 @@ class FormInput {
   }
 
   addValue(text) {
-    this.value = this.#parser(text);
+    const value = this.#parser(text);
+    if (this.#isValid(value)) {
+      this.value = value;
+      return true;
+    }
+    return false;
   }
 
-  isValid(value) {
+  #isValid(value) {
     try {
       this.#validator(value);
       return true;
@@ -57,21 +63,59 @@ class FormInput {
   }
 }
 
+const parseDate = (date) => {
+  const [year, month, day] = date.split('-');
+  return {
+    year: +year,
+    month: +month,
+    day: +day
+  };
+};
+
 const validateName = (name) => {
   if (name.length < 5) {
     throw new Error('Invalid name');
   }
 };
 
+const validateYear = (date) => {
+  const { year } = date;
+  if (year.length === 0) {
+    throw new Error('Invalid year');
+  }
+};
+
+const validateMonth = (date) => {
+  const { month } = date;
+  if (month > 12 || month < 1) {
+    throw new Error('Invalid month');
+  }
+};
+
+const validateDay = (date) => {
+  const { day } = date;
+  if (day > daysInMonth(date) || day < 1) {
+    throw new Error('Invalid day');
+  }
+};
+
 const validateDob = (dob) => {
-  return;
+  const date = parseDate(dob);
+  validateYear(date);
+  validateMonth(date);
+  validateDay(date);
 };
 
 const validateHobbies = (hobbies) => {
-  return;
+  if (hobbies.length === 0) {
+    throw new Error('No hobby found');
+  }
 };
 
 const parseHobbies = (hobbies) => {
+  if (hobbies.length === 0) {
+    return [];
+  }
   return hobbies.split(',');
 };
 
@@ -86,8 +130,7 @@ const fillForm = (form) => {
   prompt(currentInput.label);
 
   process.stdin.on('data', (chunk) => {
-    if (currentInput.isValid(chunk)) {
-      currentInput.addValue(chunk.trim());
+    if (currentInput.addValue(chunk.trim())) {
       currentInput = form.nextInput();
     }
 
@@ -115,7 +158,8 @@ const main = () => {
     new FormInput(
       'hobbies',
       'Please enter your hobbies separated by commans :',
-      parseHobbies, validateHobbies
+      parseHobbies,
+      validateHobbies
     ),
   ]
   const form = new Form(formInputs);
