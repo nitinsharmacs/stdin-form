@@ -1,9 +1,4 @@
-// dob : yyyy-mm-dd
-const formData = {
-  name: 'john',
-  dob: '2001-07-30',
-  hobbies: ['dancing', 'cycling']
-};
+const fs = require('fs');
 
 class Form {
   #formData;
@@ -14,9 +9,7 @@ class Form {
   }
 
   add(name, value) {
-    // console.log(name);
     const input = this.#formInputs.find(input => input.name === name);
-    // console.log(input);
     if (input) {
       this.#formData[name] = input.get(value);
     }
@@ -45,8 +38,8 @@ const parseHobbies = (hobbies) => {
   return hobbies.split(',');
 };
 
-const promptLabel = (label) => {
-  console.log(label);
+const prompt = (text) => {
+  console.log(text);
 };
 
 const fillForm = (form) => {
@@ -55,19 +48,20 @@ const fillForm = (form) => {
   const formInputs = form.getFormInputs();
   let currentInputIndex = 0;
 
-  promptLabel(formInputs[currentInputIndex].label);
+  prompt(formInputs[currentInputIndex].label);
 
   process.stdin.on('data', (chunk) => {
-    form.add(formInputs[currentInputIndex].name, chunk);
+    form.add(formInputs[currentInputIndex].name, chunk.trim());
 
     currentInputIndex++;
     if (currentInputIndex < formInputs.length) {
-      promptLabel(formInputs[currentInputIndex].label);
+      prompt(formInputs[currentInputIndex].label);
     }
   });
 
   process.stdin.on('end', () => {
     form.storeInFile('form-data.json');
+    prompt('Thank you');
   });
 };
 
