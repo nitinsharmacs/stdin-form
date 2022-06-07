@@ -117,14 +117,13 @@ const fillForm = (form) => {
       currentInput = form.nextInput();
     }
 
-    if (currentInput) {
-      prompt(currentInput.label);
-    }
-
     if (form.hasFormCompleted()) {
       form.storeForm();
       prompt('Thank you');
+      return;
     }
+
+    prompt(currentInput.label);
   });
 };
 
