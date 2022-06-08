@@ -1,14 +1,14 @@
 const {
   Form,
   FormInput,
-  CombinedFormInput } = require("./form.js");
+  CombinedFormInput } = require("./src/form.js");
 
 const {
   validateName,
   validateDob,
   validateHobbies,
   validatePhoneNumber
-} = require('./validators.js');
+} = require('./src/validators.js');
 
 const prompt = (text) => {
   console.log(text);
