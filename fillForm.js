@@ -48,7 +48,7 @@ const addressParser = (addresses) => {
 
 const identity = (x) => x;
 
-const main = () => {
+const createForm = () => {
   const combinedFormInputs = [
     new FormInput(
       'address',
@@ -84,8 +84,11 @@ const main = () => {
     new CombinedFormInput('address', combinedFormInputs, addressParser)
   ];
 
-  const form = new Form(formInputs);
-  fillForm(form);
+  return new Form(formInputs);
+};
+
+const main = () => {
+  fillForm(createForm());
 };
 
 main();
