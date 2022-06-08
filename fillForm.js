@@ -18,7 +18,7 @@ const fillForm = (form) => {
   process.stdin.setEncoding('utf8');
 
   let currentInput = form.currentInput();
-  prompt(currentInput.label);
+  prompt(currentInput.getPrompt());
 
   process.stdin.on('data', (chunk) => {
     if (currentInput.addValue(chunk.trim())) {
@@ -31,7 +31,7 @@ const fillForm = (form) => {
       return;
     }
 
-    prompt(currentInput.label);
+    prompt(currentInput.getPrompt());
   });
 };
 
@@ -40,6 +40,10 @@ const parseHobbies = (hobbies) => {
     return [];
   }
   return hobbies.split(',');
+};
+
+const addressParser = (addresses) => {
+  return addresses.join('\n');
 };
 
 const identity = (x) => x;
@@ -77,7 +81,7 @@ const main = () => {
       identity,
       validatePhoneNumber
     ),
-    new CombinedFormInput('address', combinedFormInputs)
+    new CombinedFormInput('address', combinedFormInputs, addressParser)
   ];
 
   const form = new Form(formInputs);

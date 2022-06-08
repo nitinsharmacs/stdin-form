@@ -1,6 +1,6 @@
 const { daysInMonth } = require('./day');
 
-const isPhoneNumber = (text) => /^\d{10,10}$/.test(text);
+const isPhoneNumber = (text) => /^\d{10}$/.test(text);
 
 const parseDate = (date) => {
   const [year, month, day] = date.split('-');

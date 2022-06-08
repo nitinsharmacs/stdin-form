@@ -25,21 +25,19 @@ class Form {
   }
 
   nextInput() {
-    const flatInputs = this.#flatInputs();
-    return flatInputs[++this.#currentInputIndex];
+    const currentInput = this.currentInput();
+    if (currentInput.isFilled()) {
+      return this.#formInputs[++this.#currentInputIndex];
+    }
+    return currentInput;
   }
 
   currentInput() {
-    const flatInputs = this.#flatInputs();
-    return flatInputs[this.#currentInputIndex];
-  }
-
-  #flatInputs() {
-    return this.#formInputs.flatMap(input => input.combined ? input.inputs : input);
+    return this.#formInputs[this.#currentInputIndex];
   }
 
   hasFormCompleted() {
-    return this.#currentInputIndex >= this.#flatInputs().length;
+    return this.#currentInputIndex >= this.#formInputs.length;
   }
 
   storeForm() {
@@ -58,10 +56,11 @@ class FormInput {
     this.label = label;
     this.#parser = parser;
     this.#validator = validator;
+    this.#value = null;
   }
 
   addValue(text) {
-    const value = this.#parser(text);
+    const value = text;
     if (this.#isValid(value)) {
       this.#value = value;
       return true;
@@ -69,8 +68,16 @@ class FormInput {
     return false;
   }
 
+  isFilled() {
+    return this.#value !== null;
+  }
+
   value() {
-    return this.#value;
+    return this.#parser(this.#value);
+  }
+
+  getPrompt() {
+    return this.label;
   }
 
   #isValid(value) {
@@ -84,14 +91,35 @@ class FormInput {
 }
 
 class CombinedFormInput {
-  constructor(name, formInputs) {
+  #parser;
+  #currentInputIndex;
+  constructor(name, formInputs, parser) {
     this.name = name;
     this.inputs = formInputs;
-    this.combined = true;
+    this.#parser = parser;
+    this.#currentInputIndex = 0;
+  }
+
+  addValue(text) {
+    const currentInput = this.inputs[this.#currentInputIndex];
+    if (currentInput.addValue(text)) {
+      ++this.#currentInputIndex;
+      return true;
+    }
+    return false;
   }
 
   value() {
-    return this.inputs.map(input => input.value()).join('\n');
+    const inputsValues = this.inputs.map(input => input.value());
+    return this.#parser(inputsValues);
+  }
+
+  getPrompt() {
+    return this.inputs[this.#currentInputIndex].getPrompt();
+  }
+
+  isFilled() {
+    return this.inputs.every(input => input.isFilled());
   }
 }
 
