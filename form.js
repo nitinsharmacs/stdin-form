@@ -19,7 +19,8 @@ class Form {
 
   #getFormData() {
     return this.#formInputs.reduce((formData, formInput) => {
-      formData[formInput.name] = formInput.value();
+      const { name, value } = formInput.getEntry();
+      formData[name] = value;
       return formData;
     }, {});
   }
@@ -48,12 +49,14 @@ class Form {
 }
 
 class FormInput {
+  #name;
+  #label;
+  #value;
   #parser;
   #validator;
-  #value;
   constructor(name, label, parser, validator) {
-    this.name = name;
-    this.label = label;
+    this.#name = name;
+    this.#label = label;
     this.#parser = parser;
     this.#validator = validator;
     this.#value = null;
@@ -72,12 +75,12 @@ class FormInput {
     return this.#value !== null;
   }
 
-  value() {
-    return this.#parser(this.#value);
+  getEntry() {
+    return { name: this.#name, value: this.#parser(this.#value) };
   }
 
   getPrompt() {
-    return this.label;
+    return this.#label;
   }
 
   #isValid(value) {
@@ -91,17 +94,19 @@ class FormInput {
 }
 
 class CombinedFormInput {
+  #name;
   #parser;
+  #inputs;
   #currentInputIndex;
   constructor(name, formInputs, parser) {
-    this.name = name;
-    this.inputs = formInputs;
+    this.#name = name;
+    this.#inputs = formInputs;
     this.#parser = parser;
     this.#currentInputIndex = 0;
   }
 
   addValue(text) {
-    const currentInput = this.inputs[this.#currentInputIndex];
+    const currentInput = this.#inputs[this.#currentInputIndex];
     if (currentInput.addValue(text)) {
       ++this.#currentInputIndex;
       return true;
@@ -109,17 +114,17 @@ class CombinedFormInput {
     return false;
   }
 
-  value() {
-    const inputsValues = this.inputs.map(input => input.value());
-    return this.#parser(inputsValues);
+  getEntry() {
+    const inputsValues = this.#inputs.map(input => input.getEntry().value);
+    return { name: this.#name, value: this.#parser(inputsValues) };
   }
 
   getPrompt() {
-    return this.inputs[this.#currentInputIndex].getPrompt();
+    return this.#inputs[this.#currentInputIndex].getPrompt();
   }
 
   isFilled() {
-    return this.inputs.every(input => input.isFilled());
+    return this.#inputs.every(input => input.isFilled());
   }
 }
 

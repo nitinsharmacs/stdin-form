@@ -1,6 +1,7 @@
 const { daysInMonth } = require('./day');
 
 const isPhoneNumber = (text) => /^\d{10}$/.test(text);
+const isValidDate = (text) => /^\d{4}-\d{2}-\d{2}$/.test(text);
 
 const parseDate = (date) => {
   const [year, month, day] = date.split('-');
@@ -38,7 +39,16 @@ const validateDay = (date) => {
   }
 };
 
+const validateDateFormate = (date) => {
+  if (isValidDate(date)) {
+    return;
+  }
+  throw new Error('Invalid date formate');
+};
+
 const validateDob = (dob) => {
+  validateDateFormate(dob);
+
   const date = parseDate(dob);
   validateYear(date);
   validateMonth(date);
