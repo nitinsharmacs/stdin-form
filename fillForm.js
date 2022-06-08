@@ -14,24 +14,26 @@ const prompt = (text) => {
   console.log(text);
 };
 
+const fillResponse = (form, response) => {
+  form.fill(response);
+
+  if (form.hasFormCompleted()) {
+    form.storeForm();
+    prompt('Thank you');
+    process.stdin.destroy();
+    return;
+  }
+
+  prompt(form.getPrompt());
+}
+
 const fillForm = (form) => {
   process.stdin.setEncoding('utf8');
 
-  let currentInput = form.currentInput();
-  prompt(currentInput.getPrompt());
+  prompt(form.getPrompt());
 
   process.stdin.on('data', (chunk) => {
-    if (currentInput.addValue(chunk.trim())) {
-      currentInput = form.nextInput();
-    }
-
-    if (form.hasFormCompleted()) {
-      form.storeForm();
-      prompt('Thank you');
-      return;
-    }
-
-    prompt(currentInput.getPrompt());
+    fillResponse(form, chunk.trim());
   });
 };
 

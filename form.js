@@ -25,12 +25,12 @@ class Form {
     }, {});
   }
 
-  nextInput() {
-    const currentInput = this.currentInput();
-    if (currentInput.isFilled()) {
-      return this.#formInputs[++this.#currentInputIndex];
+  fill(response) {
+    const input = this.currentInput();
+    input.addValue(response);
+    if (input.isFilled()) {
+      ++this.#currentInputIndex;
     }
-    return currentInput;
   }
 
   currentInput() {
@@ -39,6 +39,10 @@ class Form {
 
   hasFormCompleted() {
     return this.#currentInputIndex >= this.#formInputs.length;
+  }
+
+  getPrompt() {
+    return this.currentInput().getPrompt();
   }
 
   storeForm() {
