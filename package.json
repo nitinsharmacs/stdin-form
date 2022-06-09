@@ -1,0 +1,21 @@
+{
+  "name": "stdin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "fillForm.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node fillForm.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nitinsharmacs/stdin-form.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nitinsharmacs/stdin-form/issues"
+  },
+  "homepage": "https://github.com/nitinsharmacs/stdin-form#readme"
+}

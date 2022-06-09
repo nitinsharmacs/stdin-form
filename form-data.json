@@ -1,10 +1,1 @@
-{
-  "name": "nitin",
-  "dob": "2001-01-01",
-  "hobbies": [
-    "cycling",
-    "reading"
-  ],
-  "ph_no": "8448474746",
-  "address": "kri\nvihar"
-}
+{"name":"nitin","dob":"2001-01-01","hobbies":["cycling","reading","typing"],"ph_no":"8448747474","address":"krishan vihar\ndelhi -110086"}
